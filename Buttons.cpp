@@ -1,36 +1,40 @@
+// Buttons.cpp
+
+
 #include "Buttons.h"
 
-// button debouncing adapted from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1210559123/7;
-#define BOUNCE_TIME_BUTTON		600	// bounce time in ms for the menu button;
-#define BOUNCE_TIME_IR			500	// bounce time in ms for the IR receiver;
+#define BOUNCE_TIME_BUTTON  	600	// bounce time in ms for the menu button;
+
+#define CapThreshold 100
+
+CapSense   but_1 = CapSense(8,9);        // 10M resistor between pins 4 & 2, pin 2 is sensor pin, add a wire and or foil if desired
+CapSense   but_2 = CapSense(8,10);        // 10M resistor between pins 4 & 6, pin 6 is sensor pin, add a wire and or foil
+CapSense   but_3 = CapSense(8,11);        // 10M resistor between pins 4 & 8, pin 8 is sensor pin, add a wire and or foil
 
 
-// last time the respective button was pressed; used for debouncing;
-volatile unsigned long timeBtnMenu	=	0;
-volatile unsigned long timeBtnSet 	=	0;
-volatile unsigned long timeBtnPlus	=	0;
 
 void (*buttonCallback)(ButtonType) = NULL;
 
-void setupButtons() {
-  pinMode(BUTTON_MENU_PIN, INPUT);
-  pinMode(BUTTON_SET_PIN, INPUT);
-  pinMode(BUTTON_PLUS_PIN, INPUT);
-}
+//*********************************************************************************************************
+void checkButtons()
+{
+	// last time the respective button was pressed; used for debouncing;
+static unsigned long timeBtnMenu;
+static unsigned long timeBtnSet;
+static unsigned long timeBtnPlus;
 
-void checkButtons() {
-  // check buttons;
-  if (digitalRead(BUTTON_MENU_PIN) == LOW) {
-    // debouncing;
+  if (but_1.capSense(30)  > CapThreshold) 
+  {
     if (abs(millis() - timeBtnMenu) < BOUNCE_TIME_BUTTON)  return;
 
     if(buttonCallback != NULL)
       buttonCallback(BUTTON_MENU);
 
     timeBtnMenu	=	millis();
-  }
+  }	
 
-  if (digitalRead(BUTTON_SET_PIN) == LOW) {
+  if (but_2.capSense(30) > CapThreshold) 
+  {
     // debouncing;
     if (abs(millis() - timeBtnSet) < BOUNCE_TIME_BUTTON)  return;
 
@@ -40,28 +44,18 @@ void checkButtons() {
     timeBtnSet	=	millis();
   }
 
-  if (digitalRead(BUTTON_PLUS_PIN) == LOW) {
+  if (but_3.capSense(30) > CapThreshold) 
+  {
+
     // debouncing;
     if (abs(millis() - timeBtnPlus) < BOUNCE_TIME_BUTTON)  return;
-
     if(buttonCallback != NULL)
       buttonCallback(BUTTON_PLUS);
-
     timeBtnPlus	=	millis();
   }
-}
 
-boolean readButtons() {
-  if ((digitalRead(BUTTON_MENU_PIN) == LOW) ||
-      (digitalRead(BUTTON_SET_PIN) == LOW)  ||
-      (digitalRead(BUTTON_PLUS_PIN) == LOW)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
+}	
+//*********************************************************************************************************
 
 
 
