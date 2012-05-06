@@ -1,17 +1,23 @@
+#include <OneWire.h>
+
 #include "ClockController.h"
-#include "Sound.h"
-#include "Settings.h"
+#include "ClockFace.h"
+//#include "Sound.h"
+//#include "Settings.h"
 #include "HT1632.h"
+#define rtc RTC
+
+
+
 
 void ClockController::setup() {
   changeFace(faceManager.currentFace());
 
-  beepEnabled = EEPROM.read(SETTINGS_BEEP_ENABLED);
-  beepTriggerEnabled = false;
+//  beepEnabled = EEPROM.read(SETTINGS_BEEP_ENABLED);
+//  beepTriggerEnabled = false;
+	tick();
 
-  tick();
-
-  Serial.begin(9600);
+ // Serial.begin(9600);
 }
 
 void ClockController::tick() {
@@ -27,7 +33,11 @@ void ClockController::tick() {
   month   = time[5];
   year    = time[6];
 
-  temperature = rtc.getTemperature();
+
+ 
+ // Serial.println(temperature);
+
+ // temperature = rtc.getTemperature();
 
   if(currentFace != NULL) {
     if(seconds != currentFace->seconds ||
@@ -47,22 +57,33 @@ void ClockController::tick() {
     currentFace->updateDisplay();
   }
 
-  checkForBeep();
-  checkSerial();
+//  checkForBeep();
+ // checkSerial();
 }
 
 void ClockController::buttonClicked(ButtonType button) {
   if(button == BUTTON_MENU) {
     changeFace(faceManager.nextFace());
   }
+  else if (button == BUTTON_SET) {
+	  currentFace->setPressed();
+  }
+  else if (button == BUTTON_PLUS) {
+		currentFace->plusPressed();
+  }
+  
 }
 
 void ClockController::changeFace(ClockFace* newFace) {
   currentFace = newFace;
-  currentFace->init();
+// QVS Changed sequence so init can draw on screen and not get erased.
   ht1632_clear();
-}
+  currentFace->init();
+  }
 
+
+
+/*
 void ClockController::checkForBeep() {
   if(!beepEnabled) return;
 
@@ -78,6 +99,7 @@ void ClockController::checkForBeep() {
       beepTriggerEnabled = false;
   }
 }
+*/
 
 void ClockController::checkSerial() {
   byte incoming;
@@ -106,9 +128,9 @@ bool ClockController::handleSerialEvent(const String& line) {
       Serial.println(mins);
 
       rtc.stop();
-      rtc.set(DS3231_SEC, 0);
-      rtc.set(DS3231_MIN, mins);
-      rtc.set(DS3231_HR, hours);
+      rtc.set(DS1307_SEC, 0);
+      rtc.set(DS1307_MIN, mins);
+      rtc.set(DS1307_HR, hours);
       rtc.start();
     } else {
       Serial.println("Couldn't parse time: " + timeString);
@@ -130,13 +152,13 @@ bool ClockController::handleSerialEvent(const String& line) {
       Serial.println(year);
 
       rtc.stop();
-      rtc.set(DS3231_DATE, day);
-      rtc.set(DS3231_MTH, month);
-      rtc.set(DS3231_YR, year);
+      rtc.set(DS1307_DATE, day);
+      rtc.set(DS1307_MTH, month);
+      rtc.set(DS1307_YR, year);
       rtc.start();
     } else if(line.startsWith("hourBeep ")) {
       bool enabled = (line.substring(9,10).toInt()==1);
-      EEPROM.write(SETTINGS_BEEP_ENABLED, enabled);
+  //    EEPROM.write(SETTINGS_BEEP_ENABLED, enabled);
       beepEnabled = enabled;
       Serial.print(beepEnabled ? "Enabling" : "Disabling");
       Serial.println(" beep");
@@ -161,7 +183,7 @@ void ClockController::dispatchSerial(const String& line) {
   bool handled = false;
 
   if(line == "beep") {
-    beep();
+ //   beep();
     handled = true;
   } else if(line.equalsIgnoreCase("Open the pod bay doors, HAL")){
     Serial.println("Sorry. I can't let you do that, Dave.");
@@ -174,3 +196,5 @@ void ClockController::dispatchSerial(const String& line) {
   if(!handled)
     Serial.println("I'm not wise enough to understand: " + line);
 }
+
+

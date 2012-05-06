@@ -2,10 +2,15 @@
 #include <stdio.h>
 #include <Wire.h>
 #include <EEPROM.h>
-#include "DS3231.h"
+#include <CapSense.h>
+#include <OneWire.h>
+
+
+#include "ds1307.h"
+//#include "DS3231.h"
 #include "HT1632.h"
-#include "SDuFAT.h"
-#include "Sound.h"
+//#include "SDuFAT.h"
+//#include "Sound.h"
 #include "Buttons.h"
 #include "ClockController.h"
 
@@ -16,9 +21,8 @@ void buttonClicked(ButtonType button) {
 }
 
 void setup() {
-	setupSpeaker();
-	setupButtons();
-	beep();
+//	setupSpeaker();
+//	beep();
 	ht1632_setup();
 
     randomSeed(analogRead(A0));

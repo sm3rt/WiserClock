@@ -7,11 +7,14 @@
 class PongFace: public ClockFace
 {
 private:
-  float ballpos_x, ballpos_y;
+  int ballpos_x;
+  int ballvel_x;
+  int ballpos_y;	// scaled by 256
+  int ballvel_y;	// scaled by 256
   byte erase_x;  //holds ball old pos so we can erase it, set to blank area of screen initially.
   byte erase_y;
   byte oldBallColor; //Holds previous color of the field where the ball was drawn
-  float ballvel_x, ballvel_y;
+ 
   int bat1_y;  //bat starting y positions
   int bat2_y;
   int bat1_target_y;  //bat targets for bats to move to
@@ -21,7 +24,7 @@ private:
   byte bat1miss, bat2miss; //flags set on the minute or hour that trigger the bats to miss the ball, thus upping the score to match the time.
   byte restart;   //game restart flag - set to 1 initially to setup 1st game
 
-  byte pong_get_ball_endpoint(float tempballpos_x, float  tempballpos_y, float  tempballvel_x, float tempballvel_y);
+  byte pong_get_ball_endpoint(int tempballpos_x, int  tempballpos_y, int  tempballvel_x, int tempballvel_y);
 
 public:
   virtual void init();

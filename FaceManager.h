@@ -5,7 +5,7 @@
 #include "ClockFace.h"
 
 enum {
-FACE_COUNT = 2
+FACE_COUNT = 7
 };
 
 struct FaceManager {

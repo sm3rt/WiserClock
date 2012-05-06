@@ -1,8 +1,40 @@
+/*
+ *********************************************************************************************************
+ * HT1632.h - defintions for Holtek HT1632 LED driver.
+ *
+ * Apr/10 by FlorinC (http://timewitharduino.blogspot.com/)
+ *   Copyrighted and distributed under the terms of the Berkeley license
+ *   (copy freely, but include this notice of original authors.)
+ *
+ * Adapted after HT1632 library by Bill Westfield ("WestfW") (http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1225239439/0);
+ *
+ *********************************************************************************************************
+ */
+
+//*********************************************************************************************************
+//*	Edit History, started April, 2010
+//*	please put your initials and comments here anytime you make changes
+//*********************************************************************************************************
+//* Apr 15/10 (fc) created file, by restructuring Wise4Sure.pde;
+//* Oct 10/10 (rp) adapted ht1632_putBigDigit() for multiple fonts;
+//* Jan 29/11 (fc) modified for Wise Clock 3 (3216 bicolor display);
+//* Jun 20/11 (rp) added color and columns parameter to putBigDigit(); 
+//* Jun 20/11 (fc) added setBrightness(), ht1632_plot() now uses int instead of byte; 
+//* Oct 15/11 (rp) added PUTINSNAPSHOTRAM, overlayWithSnapshotHorizontal(), overlayWithSnapshotVertical();
+//*
+//*********************************************************************************************************
+
+
 #ifndef _HT1632_
 #define _HT1632_
 
+//#define _FONTLARGE_
 
-#include <Arduino.h>
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 
 
 #define X_MAX 32
@@ -14,6 +46,9 @@
 #define RED    2
 #define ORANGE 3
 
+#define PUTINSNAPSHOTRAM 0x10			// if set write to snapshot memory instead of shadow ram.;
+#define CLEARSNAPSHOTRAM true			// used in overlay functions;
+#define NOCLEARSNAPSHOTRAM false
 
 
 #define plot(x,y,v)  ht1632_plot(x,y,v)
@@ -55,6 +90,10 @@ extern byte ht1632_shadowram[64][4];		// our copy of the display's RAM
 void		snapshot_shadowram();
 byte		get_snapshotram(byte x, byte y);
 byte		get_shadowram(byte x, byte y);
+byte 		get_videoram(byte x, byte y, byte which4Bits);
+void 		put_snapshotram(byte x, byte y, byte color);
+void 		overlayWithSnapshotHorizontal(boolean clearSnapshotRam, int msec);
+void 		overlayWithSnapshotVertical(boolean clearSnapshotRam, int msec);
 
 void		ht1632_setup();
 void		ht1632_clear();
@@ -66,9 +105,13 @@ void		ht1632_plot	       (int x, int y, byte color);
 void		ht1632_putchar     (int x, int y, char c, byte color);
 void		ht1632_putSmallChar(int x, int y, char c, byte color);
 void		ht1632_putTinyChar (int x, int y, char c, byte color);
+#ifdef _FONTLARGE_
+int 		ht1632_putLargeChar(int x, int y, char c, byte color);
+#endif
 void		ht1632_putBigDigit (int x, int y, int digit, int fontNbr, byte color, int columns);
+void		ht1632_putBitmap   (int x, int y, byte indexBmp, byte color=ORANGE);
 
-void		displayStaticLine(char* text, byte color);
+void		displayStaticLine(char* text, byte y, byte color);
 void		setBrightness(byte level);
 
 

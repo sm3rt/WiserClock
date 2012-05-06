@@ -3,7 +3,7 @@
 
 #include "Buttons.h"
 
-#define BOUNCE_TIME_BUTTON  	600	// bounce time in ms for the menu button;
+#define BOUNCE_TIME_BUTTON		600	// bounce time in ms for the menu button;
 
 #define CapThreshold 100
 
